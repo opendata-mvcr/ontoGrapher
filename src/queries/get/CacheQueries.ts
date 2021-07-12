@@ -184,6 +184,7 @@ export async function searchCache(
     .then((json) => {
       const result: CacheSearchResults = {};
       for (const row of json.results.bindings) {
+        if (row.entity.value in WorkspaceTerms) continue;
         if (!(row.entity.value in result)) {
           result[row.entity.value] = {
             labels: initLanguageObject(""),
