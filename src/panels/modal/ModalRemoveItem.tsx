@@ -4,15 +4,11 @@ import { deletePackageItem } from "../../function/FunctionEditVars";
 import {
   AppSettings,
   WorkspaceElements,
-  WorkspaceTerms,
   WorkspaceVocabularies,
 } from "../../config/Variables";
 import { Locale } from "../../config/Locale";
 import { updateDeleteTriples } from "../../queries/update/UpdateMiscQueries";
-import {
-  getVocabularyFromScheme,
-  getWorkspaceContextIRI,
-} from "../../function/FunctionGetVars";
+import { getWorkspaceContextIRI } from "../../function/FunctionGetVars";
 
 interface Props {
   modal: boolean;
@@ -26,22 +22,21 @@ interface State {}
 
 export default class ModalRemoveItem extends React.Component<Props, State> {
   save() {
+    const writeGraphs = Object.keys(WorkspaceVocabularies)
+      .filter((vocab) => !WorkspaceVocabularies[vocab].readOnly)
+      .map((vocab) => WorkspaceVocabularies[vocab].graph);
     this.props.performTransaction(
       ...deletePackageItem(this.props.id),
       updateDeleteTriples(
         WorkspaceElements[this.props.id].iri,
-        getWorkspaceContextIRI(),
+        [getWorkspaceContextIRI()],
         true,
         false,
         false
       ),
       updateDeleteTriples(
         WorkspaceElements[this.props.id].iri,
-        WorkspaceVocabularies[
-          getVocabularyFromScheme(
-            WorkspaceTerms[WorkspaceElements[this.props.id].iri].inScheme
-          )
-        ].graph,
+        writeGraphs,
         true,
         true,
         true

@@ -41,14 +41,14 @@ export default class ModalRemoveReadOnlyItem extends React.Component<
       ...deletePackageItem(this.props.id),
       updateDeleteTriples(
         WorkspaceElements[this.props.id].iri + "/diagram",
-        getWorkspaceContextIRI(),
+        [getWorkspaceContextIRI()],
         true,
         false,
         false
       ),
       updateDeleteTriples(
         WorkspaceElements[this.props.id].iri,
-        getWorkspaceContextIRI(),
+        [getWorkspaceContextIRI()],
         true,
         true,
         true

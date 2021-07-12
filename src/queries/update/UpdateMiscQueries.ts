@@ -47,7 +47,7 @@ export function updateProjectSettings(
 
 export function updateDeleteTriples(
   iri: string,
-  context: string,
+  contexts: string[],
   subject: boolean,
   object: boolean,
   blanks: boolean
@@ -55,28 +55,36 @@ export function updateDeleteTriples(
   const deletes = [];
   if (blanks)
     deletes.push(
-      DELETE`${qb.g(context, [
+      DELETE`${[
+        "GRAPH ?graph {",
         qb.s(qb.i(iri), "rdfs:subClassOf", "?b"),
         qb.s("?b", "?p", "?o"),
-      ])}`.WHERE`${qb.g(context, [
+        "}",
+      ].join(" ")}`.WHERE`${[
+        "GRAPH ?graph {",
         qb.s(qb.i(iri), "rdfs:subClassOf", "?b"),
         qb.s("?b", "?p", "?o"),
-        "filter(isBlank(?b)).",
-      ])}`.build()
+        "filter(isBlank(?b)).}",
+        "values ?graph {" + contexts.map((c) => `<${c}>`).join(" ") + "}",
+      ].join(" ")}`.build()
     );
   if (subject)
     deletes.push(
-      DELETE`${qb.g(context, [qb.s(qb.i(iri), "?p", "?o")])}`.WHERE`${qb.g(
-        context,
-        [qb.s(qb.i(iri), "?p", "?o")]
-      )}`.build()
+      DELETE`${["GRAPH ?graph {", qb.s(qb.i(iri), "?p", "?o"), "}"].join(" ")}`
+        .WHERE`${[
+        "GRAPH ?graph {",
+        qb.s(qb.i(iri), "?p", "?o"),
+        "} values ?graph {" + contexts.map((c) => `<${c}>`).join(" ") + "}",
+      ].join(" ")}`.build()
     );
   if (object)
     deletes.push(
-      DELETE`${qb.g(context, [qb.s("?s", "?p", qb.i(iri))])}`.WHERE`${qb.g(
-        context,
-        [qb.s("?s", "?p", qb.i(iri))]
-      )}`.build()
+      DELETE`${["GRAPH ?graph {", qb.s("?s", "?p", qb.i(iri)), "}"].join(" ")}`
+        .WHERE`${[
+        "GRAPH ?graph {",
+        qb.s("?s", "?p", qb.i(iri)),
+        "} values ?graph {" + contexts.map((c) => `<${c}>`).join(" ") + "}",
+      ].join(" ")}`.build()
     );
   return qb.combineQueries(...deletes);
 }

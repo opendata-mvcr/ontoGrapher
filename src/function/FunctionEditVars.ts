@@ -54,7 +54,7 @@ export function loadUML() {
 
   WorkspaceVocabularies[scheme] = {
     labels: initLanguageObject("UML"),
-    readOnly: false,
+    readOnly: true,
     namespace: "",
     graph: AppSettings.ontographerContext,
     color: "#FFF",
@@ -122,7 +122,7 @@ export function deletePackageItem(id: string): string[] {
     queries.push(
       updateDeleteTriples(
         AppSettings.ontographerContext + "-" + connection,
-        getWorkspaceContextIRI(),
+        [getWorkspaceContextIRI()],
         true,
         false,
         false
@@ -137,7 +137,7 @@ export function deletePackageItem(id: string): string[] {
     queries.push(
       updateDeleteTriples(
         AppSettings.ontographerContext + "-" + connection,
-        getWorkspaceContextIRI(),
+        [getWorkspaceContextIRI()],
         true,
         false,
         false
